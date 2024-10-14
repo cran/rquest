@@ -1,0 +1,9 @@
+bibentry(
+  bibtype  = "Article",
+  title    = "rquest: An R package for hypothesis tests and confidence intervals
+for quantiles and summary measures based on quantiles",
+  author   = "Prendergast, L.A. and Dedduwakumara, D.S. and Staudte, R.G.",
+  journal  = "preprint",
+  year     = 2024,
+  pages    = "1-13"
+)
