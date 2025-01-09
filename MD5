@@ -1,13 +1,13 @@
-e7b355a46f87a76a5b0c97bcac0a9621 *DESCRIPTION
+f721a874fce0184df440eaa7c2108cb8 *DESCRIPTION
 c20f5cbb42753c48c0e9170a146ff57f *NAMESPACE
-4be8a3842bae3aa3698c7a52f1c114f1 *NEWS.md
+d51a3e78f4dbb7e0393c52fa27e7bff1 *NEWS.md
 0e3bdb9bd741b2360a46258f7e0fc466 *R/R.R
-95e5df425f2db07faaa3521ab4e9e7fb *R/q.test.R
-f1330a682918216cfc38078e8cebf824 *R/qcov.R
-ca942602c78e090cbda8a142ba48735f *R/qineq.R
+5762edda611dbaf78d83f20f04421a56 *R/q.test.R
+c39168e4566e0096e8ca88ba902f69ce *R/qcov.R
+78ebfdc6e7315808696f901a250bf586 *R/qineq.R
 e0d4a98d9e31c1d82d556d34b5fb873b *R/qor.ln.R
 6f8ae6753a5acb1570a7423a1a0a2509 *R/rquest-package.R
-380c65832d072a6889a5f978a852acac *README.md
+d5c13afb953f7b1f241ce66d51871c42 *README.md
 592de857efe9d23b3d6e43713c3dad1c *inst/CITATION
 d3a91f888d251a86f5953da9b70e2bed *man/q.test.Rd
 1445b7142930852547cab4904813b9c0 *man/qcov.Rd
@@ -15,5 +15,5 @@ d3a91f888d251a86f5953da9b70e2bed *man/q.test.Rd
 f585a936cb9308eb2a8782fe6b295ae5 *man/rquest-package.Rd
 d1d123baf32c9f062769a75014683ab2 *tests/testthat.R
 59cdb308864af35ba0223dedeb6d48a3 *tests/testthat/test-q.test.R
-290e6d54fe1908f557f651b2617a96a7 *tests/testthat/test-qcov.R
+de387006d3c6af522168c5b2177617ff *tests/testthat/test-qcov.R
 39e48ede04f4bc6c51fe252a6c48b8d0 *tests/testthat/test-qineq.R

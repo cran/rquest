@@ -30,44 +30,35 @@
 #' # Compute the variance-covariance matrix for sample quartiles.
 #' qcov(x, c(0.25, 0.5, 0.75))
 
-qcov <- function(x, u,
-                 method = "qor",
-                 FUN = qor.ln,
-                 quantile.type = 8,
-                 bw.correct = TRUE){
-
+qcov <- function (x, u, method = "qor", FUN = qor.ln, quantile.type = 8,
+                  bw.correct = TRUE)
+{
   n <- length(x)
   qest <- quantile(x, u, type = quantile.type)
-
   u1u <- u %*% t(1 - u)
   u1u <- pmin(u1u, t(u1u))
-
-  if (method == "qor"){
+  if (method == "qor") {
     qor <- FUN(u)
-    bw <- 15^(1/5)*abs(qor)^(2/5)/n^(1/5)
-    if (bw.correct) bw[u <= bw] <- u[u <= bw]#replace bw by the values of v when v<=bw
-
-    kernepach <- function(u) 3/4*(1 - u^2)*(abs(u) <= 1)
+    bw <- 15^(1/5) * abs(qor)^(2/5)/n^(1/5)
+    if (bw.correct)
+      bw[u <= bw] <- u[u <= bw]
+    kernepach <- function(u) 3/4 * (1 - u^2) * (abs(u) <=
+                                                  1)
     J <- length(u)
     m1 <- matrix(u, nrow = J, ncol = n, byrow = FALSE)
     m2 <- matrix(1:n, nrow = J, ncol = n, byrow = TRUE)
-
-    consts <- kernepach((m1 - (m2 - 1)/n)*(1/bw))*(1/bw) -
-      kernepach((m1 - m2/n)*(1/bw))*(1/bw)
-
+    consts <- kernepach((m1 - (m2 - 1)/n) * (1/bw)) * (1/bw) -
+      kernepach((m1 - m2/n) * (1/bw)) * (1/bw)
     x.sorted <- sort(x)
-    q.hat <- c(consts%*%x.sorted)
-
-    covQ <- u1u*(q.hat %*% t(q.hat))/n
-
-  } else if (method == "density"){
+    q.hat <- c(consts %*% x.sorted)
+    covQ <- u1u * (q.hat %*% t(q.hat))/n
+  }
+  else if (method == "density") {
     dest <- density(x)
     df <- approxfun(dest)
-    covQ <- u1u*((1/df(qest)) %*% t(1/df(qest)))/n
+    covQ <- u1u * (crossprod(t(1/df(qest)), 1/df(qest)))/n # changed this line
   }
-
   rownames(covQ) <- u
   colnames(covQ) <- u
-
-  list(cov = covQ)
+  return(covQ)
 }

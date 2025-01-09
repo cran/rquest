@@ -124,7 +124,6 @@ q.test(x,y,u=u,coef=coef,log.transf=TRUE,back.transf=TRUE)
 
 # Compute the variance-covariance matrix for sample quartiles.
 qcov(x, c(0.25, 0.5, 0.75))
-#> $cov
 #>            0.25        0.5       0.75
 #> 0.25 0.61381325 0.27565677 0.06757741
 #> 0.5  0.27565677 0.37138326 0.09104481
@@ -139,10 +138,10 @@ qineq(x,y)
 #>  Two sample test of the QRI
 #> 
 #> data:  x and y
-#> Z = -0.28062, p-value = 0.779
+#> Z = -0.30205, p-value = 0.7626
 #> alternative hypothesis: true difference in QRI is not equal to 0
 #> 95 percent confidence interval:
-#>  -0.2158219  0.1617608
+#>  -0.2024260  0.1483649
 #> sample estimates:
 #> difference in QRI 
 #>       -0.02703056

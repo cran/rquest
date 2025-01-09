@@ -1,3 +1,5 @@
+# rquest 1.0.3
+
 # rquest 1.0.2
 
 * Title and description changed according to CRAN requirements

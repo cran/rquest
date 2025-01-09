@@ -115,42 +115,43 @@
 
 # Linear combination of quantiles -----------------------------------------
 
-q.test <- function(x, y = NULL, measure = "median", u = NULL, coef = NULL, u2 = NULL, coef2 = NULL, quantile.type = 8, var.method = "qor",
-                   alternative = c("two.sided", "less", "greater"),
-                   conf.level = 0.95, true.q = 0, log.transf = FALSE, back.transf = FALSE, min.q = -Inf,
-                   p = NULL){
-
-  if(is.null(y)){
+q.test <- function (x, y = NULL, measure = "median", u = NULL, coef = NULL,
+                    u2 = NULL, coef2 = NULL, quantile.type = 8, var.method = "qor",
+                    alternative = c("two.sided", "less", "greater"), conf.level = 0.95,
+                    true.q = 0, log.transf = FALSE, back.transf = FALSE, min.q = -Inf,
+                    p = NULL)
+{
+  if (is.null(y)) {
     samples <- "One sample"
     dname <- deparse(substitute(x))
-  } else{
+  }
+  else {
     samples <- "Two sample"
     dname <- paste(deparse(substitute(x)), "and", deparse(substitute(y)))
   }
-
-  if(any(is.na(x))){
+  if (any(is.na(x))) {
     count.x.na <- sum(is.na(x))
-    warning(paste0(count.x.na), " missing values removed in ", deparse(substitute(x)), ".\n")
+    warning(paste0(count.x.na), " missing values removed in ",
+            deparse(substitute(x)), ".\n")
     x <- na.omit(x)
   }
-
-  if(any(is.na(y))){
+  if (any(is.na(y))) {
     count.y.na <- sum(is.na(y))
-    warning(paste0(count.y.na), " missing values removed in ", deparse(substitute(y)), ".\n")
+    warning(paste0(count.y.na), " missing values removed in ",
+            deparse(substitute(y)), ".\n")
     y <- na.omit(y)
   }
-
   alternative <- match.arg(alternative)
-
-
-  if(is.null(coef) & !is.null(u)) coef <- rep(1, length(u))
-
-  if(!is.null(u2) | !is.null(coef2)){
-    if(is.null(coef2)) coef2 <- rep(1, length(u2))
-    if(is.null(u) | is.null(coef)){
+  if (is.null(coef) & !is.null(u))
+    coef <- rep(1, length(u))
+  if (!is.null(u2) | !is.null(coef2)) {
+    if (is.null(coef2))
+      coef2 <- rep(1, length(u2))
+    if (is.null(u) | is.null(coef)) {
       stop("When using u2 and coef2, you also need to specify both u and coef.\n")
     }
-    if(is.null(u2)) stop("When using coef2 you also need to specify u2.\n")
+    if (is.null(u2))
+      stop("When using coef2 you also need to specify u2.\n")
     l <- length(coef)
     l2 <- length(u2)
     u <- c(u, u2)
@@ -158,101 +159,136 @@ q.test <- function(x, y = NULL, measure = "median", u = NULL, coef = NULL, u2 = 
     coef2 <- c(rep(0, l), coef2)
     coef <- rbind(coef, coef2)
   }
-
-  if(is.null(u) & is.null(coef)){
+  if (is.null(u) & is.null(coef)) {
     if (measure == "rCViqr") {
       u <- c(0.25, 0.5, 0.75)
-      coef <- matrix(c(-3/4, 0, 3/4, 0, 1, 0), nrow = 2, ncol = 3, byrow = TRUE)
+      coef <- matrix(c(-3/4, 0, 3/4, 0, 1, 0), nrow = 2,
+                     ncol = 3, byrow = TRUE)
       measure.name <- "Robust CV"
       method <- paste(samples, "test of the robust coefficient of variation (0.75*IQR/median)")
-    } else if (measure == "iqr" | measure == "IQR") {
+    }
+    else if (measure == "iqr" | measure == "IQR") {
       u <- c(0.25, 0.75)
       coef <- c(-1, 1)
       measure.name <- "IQR"
       method <- paste(samples, "test of the interquartile range (IQR)")
-    } else if (measure == "median" | measure == "med") {
+    }
+    else if (measure == "median" | measure == "med") {
       u <- 0.5
       coef <- 1
       measure.name <- "median"
       method <- paste(samples, "test of the median")
-    } else if (measure == "bowley"){
-      if(!is.null(p)){
-        if(p > 0 & p < 0.5) u <- c(p, 0.5, 1 - p)
-        else if(p > 0.5 & p < 1) u <- c(1 - p, 0.5, p)
+    }
+    else if (measure == "bowley") {
+      if (!is.null(p)) {
+        if (p > 0 & p < 0.5)
+          u <- c(p, 0.5, 1 - p)
+        else if (p > 0.5 & p < 1)
+          u <- c(1 - p, 0.5, p)
         else stop("Argument p must be a numeric value in (0, 1) except 0.5.\n")
-      } else u <- c(0.25, 0.5, 0.75)
-      coef <- matrix(c(1, -2, 1, -1, 0, 1), nrow = 2, ncol = 3, byrow = TRUE)
+      }
+      else u <- c(0.25, 0.5, 0.75)
+      coef <- matrix(c(1, -2, 1, -1, 0, 1), nrow = 2, ncol = 3,
+                     byrow = TRUE)
       measure.name <- "Bowley's skew"
       method <- paste(samples, "test of Bowley's quantile skew measure")
-    } else if (measure == "kelly"){
+    }
+    else if (measure == "kelly") {
       u <- c(0.1, 0.5, 0.9)
-      coef <- matrix(c(1, -2, 1, -1, 0, 1), nrow = 2, ncol = 3, byrow = TRUE)
+      coef <- matrix(c(1, -2, 1, -1, 0, 1), nrow = 2, ncol = 3,
+                     byrow = TRUE)
       measure.name <- "Kelly's skew"
       method <- paste(samples, "test of Kelly's quantile skew measure")
-    } else if (substr(measure, start = 1, stop = 5) == "groen"){
-      if ((g.skew <- substr(measure, start = 6, stop = 6)) %in% c("R", "L")){
-      } else stop("Error with Groeneveld's skew.  Use one of 'groenR' or 'groenL'.\n")
-      if(!is.null(p)){
-        if(p > 0 & p < 0.5) u <- c(p, 0.5, 1 - p)
-        else if(p > 0.5 & p < 1) u <- c(1 - p, 0.5, p)
+    }
+    else if (substr(measure, start = 1, stop = 5) == "groen") {
+      if ((g.skew <- substr(measure, start = 6, stop = 6)) %in%
+          c("R", "L")) {
+      }
+      else stop("Error with Groeneveld's skew.  Use one of 'groenR' or 'groenL'.\n")
+      if (!is.null(p)) {
+        if (p > 0 & p < 0.5)
+          u <- c(p, 0.5, 1 - p)
+        else if (p > 0.5 & p < 1)
+          u <- c(1 - p, 0.5, p)
         else stop("Argument p must be a numeric value in (0, 1) except 0.5.\n")
-      } else u <- c(0.25, 0.5, 0.75)
-      if(g.skew == "R") denom <- c(-1, 1, 0)
+      }
+      else u <- c(0.25, 0.5, 0.75)
+      if (g.skew == "R")
+        denom <- c(-1, 1, 0)
       else denom <- c(0, 1, -1)
-      coef <- matrix(c(1, -2, 1, denom), nrow = 2, ncol = 3, byrow = TRUE)
+      coef <- matrix(c(1, -2, 1, denom), nrow = 2, ncol = 3,
+                     byrow = TRUE)
       measure.name <- "Groeneveld and Meeden's skew"
       method <- paste(samples, "test of Groeneveld and Meeden's quantile skew measure")
-    } else if (measure == "moors"){
+    }
+    else if (measure == "moors") {
       u <- c(1/8, 2/8, 3/8, 5/8, 6/8, 7/8)
-      coef <- matrix(c(-1, 0, 1, -1, 0, 1, 0, -1, 0, 0, 1, 0), nrow = 2, ncol = 6, byrow = TRUE)
+      coef <- matrix(c(-1, 0, 1, -1, 0, 1, 0, -1, 0, 0,
+                       1, 0), nrow = 2, ncol = 6, byrow = TRUE)
       measure.name <- "Moors kurtosis"
       method <- paste(samples, "test of Moors kurtosis")
-    } else if (measure == "lqw"){
-      if(!is.null(p)){
-        if(p > 0 & p < 0.5) u <- c(p/2, 0.25, (1 - p)/2)
+    }
+    else if (measure == "lqw") {
+      if (!is.null(p)) {
+        if (p > 0 & p < 0.5)
+          u <- c(p/2, 0.25, (1 - p)/2)
         else stop("Argument p must be a numeric value in (0, 1/2).\n")
-      } else u <- c(0.25/2, 0.25, 0.75/2)
-      coef <- matrix(c(1, -2, 1, -1, 0, 1), nrow = 2, ncol = 3, byrow = TRUE)
+      }
+      else u <- c(0.25/2, 0.25, 0.75/2)
+      coef <- matrix(c(1, -2, 1, -1, 0, 1), nrow = 2, ncol = 3,
+                     byrow = TRUE)
       measure.name <- "Left quantile tail weight"
       method <- paste(samples, "test of left quantile tail weight")
-    } else if (measure == "rqw"){
-      if(!is.null(p)){
-        if(p > 0.5 & p < 1) u <- c(1 - p/2, 0.75, (1 + p)/2)
+    }
+    else if (measure == "rqw") {
+      if (!is.null(p)) {
+        if (p > 0.5 & p < 1)
+          u <- c(1 - p/2, 0.75, (1 + p)/2)
         else stop("Argument p must be a numeric value in (1/2, 1).\n")
-      } else u <- c(1 - 0.75/2, 0.75, (1 + 0.75)/2)
-      coef <- matrix(c(1, -2, 1, -1, 0, 1), nrow = 2, ncol = 3, byrow = TRUE)
+      }
+      else u <- c(1 - 0.75/2, 0.75, (1 + 0.75)/2)
+      coef <- matrix(c(1, -2, 1, -1, 0, 1), nrow = 2, ncol = 3,
+                     byrow = TRUE)
       measure.name <- "Right quantile tail weight"
       method <- paste(samples, "test of right quantile tail weight")
-    } else if (substr(measure, start = 1, stop = 2) == "qr"){
+    }
+    else if (substr(measure, start = 1, stop = 2) == "qr") {
       num <- substring(measure, 3)
       ratio.error <- "For quantile ratios, measure must be in format qrxxyy where xx and yy are integer numbers.\n"
-      if(nchar(num) != 4) stop(ratio.error)
-      coef <- matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2, byrow = TRUE)
-      u <- as.numeric(substring(measure, c(3, 5), c(4, 6)))/100
-      if(any(is.na(u))) stop(ratio.error)
-      measure.name <- paste0("ratio of ", u[1], " and ", u[2], " quantiles")
+      if (nchar(num) != 4)
+        stop(ratio.error)
+      coef <- matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2,
+                     byrow = TRUE)
+      u <- as.numeric(substring(measure, c(3, 5), c(4,
+                                                    6)))/100
+      if (any(is.na(u)))
+        stop(ratio.error)
+      measure.name <- paste0("ratio of ", u[1], " and ",
+                             u[2], " quantiles")
       method <- paste(samples, "test of ratio of quantiles")
-    } else stop("Unknown choice for measure.\n")
+    }
+    else stop("Unknown choice for measure.\n")
   }
-  else if (is.vector(coef)){
-    if(!is.numeric(coef))
+  else if (is.vector(coef)) {
+    if (!is.numeric(coef))
       stop("If coef is a vector, then it needs to be a numeric vector.\n")
-    if(is.null(u))
+    if (is.null(u))
       stop("Argument u required if coef is a numeric vector.\n")
     if (length(u) != length(coef))
       stop("Length of u needs to be equal to the length of coef.\n")
-    if(length(coef) > 1) {
+    if (length(coef) > 1) {
       measure.name <- "LCQ"
       method <- paste(samples, "test of a linear combination of quantiles (LCQ)")
-    } else{
-      measure.name <- paste0("quantile(u=", u,")")
+    }
+    else {
+      measure.name <- paste0("quantile(u=", u, ")")
       method <- paste(samples, "test of a single", measure.name)
     }
   }
-  else if (is.matrix(coef)){
-    if(!is.numeric(coef))
+  else if (is.matrix(coef)) {
+    if (!is.numeric(coef))
       stop("If coef is a matrix, then it needs to be a numeric matrix.\n")
-    if(is.null(u))
+    if (is.null(u))
       stop("Argument u required if coef is a numeric matrix.\n")
     if (length(u) != ncol(coef) | nrow(coef) != 2)
       stop("Matrix coef needs to have dimensions: ncol(coef)=length(u) and nrow(coef)=2.\n")
@@ -260,123 +296,115 @@ q.test <- function(x, y = NULL, measure = "median", u = NULL, coef = NULL, u2 = 
     method <- paste(samples, "test of a ratio of two linear combinations of quantiles (LCQs)")
   }
   else stop("Argument coef must be either a character string, or a numeric vector or matrix.\n")
-
-  if(!log.transf & is.matrix(coef)){
-    if(nrow(coef) == 2) warning("You may wish to consider using a log transformation for ratios
-                                (e.g. log.transf = TRUE).  If you choose to use
-                                a log transformation you can also back-transform to the ratio
-                                scale using (back.transf = TRUE) if you wish.\n")
+  if (!log.transf & is.matrix(coef)) {
+    if (nrow(coef) == 2)
+      warning("You may wish to consider using a log transformation for ratios (e.g. log.transf = TRUE). If you choose to use a log transformation you can also back-transform to the ratio scale using (back.transf = TRUE) if you wish.\n")
   }
-
   alpha <- 1 - conf.level
   crit <- qnorm(1 - alpha/2)
   coef.string <- is.character(coef)
-
-  if(! var.method %in% c("qor", "density"))
+  if (!var.method %in% c("qor", "density"))
     stop("Argument method must be either 'qor' or 'density'.\n")
-
   qestx <- quantile(x, u, type = quantile.type)
-  covQx <- qcov(x, u, method = var.method, quantile.type = quantile.type)$cov
-
-  if (is.vector(coef)){
-    estx <- sum(coef*qestx)
-    sterrx <- sqrt(t(coef)%*%covQx%*%coef)[1, 1]
-  } else{
-    u1qx <- sum(coef[1, ]*qestx)
-    u2qx <- sum(coef[2, ]*qestx)
-    s1x <- (t(coef[1, ])%*% covQx %*%coef[1, ])[1, 1]
-    s2x <- (t(coef[2, ])%*% covQx %*%coef[2, ])[1, 1]
-    s12x <- (t(coef[1, ])%*% covQx %*%coef[2, ])[1, 1]
-
-    estx <- u1qx/u2qx
-    sterrx <- sqrt(s1x/u2qx^2 + u1qx^2/u2qx^4*s2x - 2*u1qx*s12x/u2qx^3)
+  covQx <- qcov(x, u, method = var.method, quantile.type = quantile.type)
+  if (is.vector(coef)) {
+    covQx.coef <- crossprod(covQx, coef)
+    covQx.coef2 <- crossprod(coef, (covQx.coef))
+    estx <- sum(coef * qestx)
+    sterrx <- sqrt(covQx.coef2)[1, 1]
   }
-  if (log.transf){
+  else {
+    u1qx <- sum(coef[1, ] * qestx)
+    u2qx <- sum(coef[2, ] * qestx)
+    covQx.coef <- crossprod(covQx, t(coef))
+    covQx.coef2 <- crossprod(t(coef), (covQx.coef))
+    s1x <- covQx.coef2[1, 1]
+    s2x <- covQx.coef2[2, 2]
+    s12x <- covQx.coef2[1, 2]
+    estx <- u1qx/u2qx
+    sterrx <- sqrt(s1x/u2qx^2 + u1qx^2/u2qx^4 * s2x - 2 *
+                     u1qx * s12x/u2qx^3)
+  }
+  if (log.transf) {
     sterrx <- sterrx/estx
     estx <- log(estx)
-    if (back.transf) transf.text <- NULL
-    else  transf.text <- "(log transformed)"
-  } else transf.text <- NULL
-
-  if(!is.null(y)){
+    if (back.transf)
+      transf.text <- NULL
+    else transf.text <- "(log transformed)"
+  }
+  else transf.text <- NULL
+  if (!is.null(y)) {
     qesty <- quantile(y, u, type = quantile.type)
-    covQy <- qcov(y, u, method = var.method, quantile.type = quantile.type)$cov
-
-    if (is.vector(coef)){
-      esty <- sum(coef*qesty)
-      sterry <- sqrt(t(coef)%*%covQy%*%coef)[1, 1]
-    } else{
-      u1qy <- sum(coef[1, ]*qesty)
-      u2qy <- sum(coef[2, ]*qesty)
-      s1y <- (t(coef[1, ])%*% covQy %*%coef[1, ])[1, 1]
-      s2y <- (t(coef[2, ])%*% covQy %*%coef[2, ])[1, 1]
-      s12y <- (t(coef[1, ])%*% covQy %*%coef[2, ])[1, 1]
-
-      esty <- u1qy/u2qy
-      sterry <- sqrt(s1y/u2qy^2 + u1qy^2/u2qy^4*s2y - 2*u1qy*s12y/u2qy^3)
+    covQy <- qcov(y, u, method = var.method, quantile.type = quantile.type)
+    if (is.vector(coef)) {
+      covQy.coef <- crossprod(covQy, coef)
+      covQy.coef2 <- crossprod(coef, (covQy.coef))
+      esty <- sum(coef * qesty)
+      sterry <- sqrt(covQy.coef2)[1, 1]
     }
-
-
-    if (log.transf){
+    else {
+      u1qy <- sum(coef[1, ] * qesty)
+      u2qy <- sum(coef[2, ] * qesty)
+      covQy.coef <- crossprod(covQy, t(coef))
+      covQy.coef2 <- crossprod(t(coef), (covQy.coef))
+      s1y <- covQy.coef2[1, 1]
+      s2y <- covQy.coef2[2, 2]
+      s12y <- covQy.coef2[1, 2]
+      esty <- u1qy/u2qy
+      sterry <- sqrt(s1y/u2qy^2 + u1qy^2/u2qy^4 * s2y -
+                       2 * u1qy * s12y/u2qy^3)
+    }
+    if (log.transf) {
       sterry <- sterry/esty
       esty <- log(esty)
-      if (back.transf) transf.text <- NULL
-      else  transf.text <- "(log transformed)"
-    } else transf.text <- NULL
-
+      if (back.transf)
+        transf.text <- NULL
+      else transf.text <- "(log transformed)"
+    }
+    else transf.text <- NULL
   }
-
-  if (samples == "Two sample"){
+  if (samples == "Two sample") {
     est <- estx - esty
     sterr <- sqrt(sterrx^2 + sterry^2)
-  } else{
+  }
+  else {
     est <- estx
     sterr <- sterrx
   }
-
   test.stat <- (est - true.q)/sterr
   names(test.stat) <- "Z"
-
-  if(alternative == "less"){
+  if (alternative == "less") {
     pval <- pnorm(test.stat)
-    ci <- c(min.q, est + qnorm(conf.level)*sterr)
-  } else if (alternative == "greater"){
-    pval <- pnorm(test.stat, lower.tail = FALSE)
-    ci <- c(est - qnorm(conf.level)*sterr, Inf)
-  } else{
-    pval <- 2*(1 - pnorm(abs(test.stat)))
-    ci <- est + c(-1, 1)*crit*sterr
+    ci <- c(min.q, est + qnorm(conf.level) * sterr)
   }
-
-  if(log.transf & back.transf){
+  else if (alternative == "greater") {
+    pval <- pnorm(test.stat, lower.tail = FALSE)
+    ci <- c(est - qnorm(conf.level) * sterr, Inf)
+  }
+  else {
+    pval <- 2 * (1 - pnorm(abs(test.stat)))
+    ci <- est + c(-1, 1) * crit * sterr
+  }
+  if (log.transf & back.transf) {
     est <- exp(est)
     ci <- exp(ci)
-    if(true.q == 0) true.q <- 1
+    if (true.q == 0)
+      true.q <- 1
   }
-
-  attr(ci, 'conf.level') <- conf.level
-
-
+  attr(ci, "conf.level") <- conf.level
   names(est) <- measure.name
-  if(samples == "Two sample"){
-    if (names(est) != "Ratio of LCQs") names(est) <- paste0(names(est), "s")
-    if(log.transf & back.transf) names(est) <- paste("ratio of", names(est))
+  if (samples == "Two sample") {
+    if (names(est) != "Ratio of LCQs")
+      names(est) <- paste0(names(est), "s")
+    if (log.transf & back.transf)
+      names(est) <- paste("ratio of", names(est))
     else names(est) <- paste("difference in", names(est))
   }
-
   names(est) <- paste(names(est), transf.text)
   names(true.q) <- names(est)
-
-  qres <- list(method = method,
-               data.name = dname,
-               statistic = test.stat,
-               parameter = NULL,
-               p.value = pval,
-               alternative = alternative,
-               estimate = est,
-               null.value = true.q,
-               conf.int = ci)
-
+  qres <- list(method = method, data.name = dname, statistic = test.stat,
+               parameter = NULL, p.value = pval, alternative = alternative,
+               estimate = est, null.value = true.q, conf.int = ci)
   class(qres) <- "htest"
   return(qres)
 }
