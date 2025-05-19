@@ -1,4 +1,4 @@
-#' q.test
+#' Hypothesis Tests and Confidence Intervals for functions of quantiles
 #' @description
 #' carry out hypothesis tests and obtain associated confidence intervals for linear combinations of quantiles,
 #' and ratios of such linear combinations.
@@ -18,7 +18,9 @@
 #'
 #' The default `var.method="qor"` is to estimate the probability density function directly using the lognormal Quantile Optimality Ratio (QOR)
 #' for choosing a suitable bandwidth (Prendergast & Staudte,2016). Alternatively, the variances can be
-#' estimated by inverting a density estimator evaluated at the quantiles and this can be done using `var.method = "density"`.
+#' estimated by inverting a density estimator evaluated at the quantiles and this can be done using `var.method = "density"`. If `var.method = "density"`,
+#' then the function density is used to estimate the probability density function which is needed for the calculation of the covariance matrix using function qcov.
+#' If needed, additional arguments can be passed to density (see ?density for details on possible additional arguments).
 #'
 #' Additional to using a text string with argument measure to indicate which quantile-based measure is to be used (of those included for the `q.test` function),
 #' users can also define and request their own.  For example, while the median is the default for a single quantile, other quantiles can also be requested
@@ -50,6 +52,7 @@
 #' @param back.transf boolean indicating whether the measure and estimates should be back-transformed  to the original scale using exp.
 #' @param min.q the lower bound for a one-sided confidence interval when alternative  argument if "less".
 #' @param p optional value in (0, 1) for Bowley's generalized skewness coefficient.
+#' @param ... additional arguments to be passed to function qcov when var.method = “density” is used.
 #' @return hypothesis test results and associated confidence interval (a list with class "htest")
 #' @references
 #'
@@ -119,23 +122,31 @@ q.test <- function (x, y = NULL, measure = "median", u = NULL, coef = NULL,
                     u2 = NULL, coef2 = NULL, quantile.type = 8, var.method = "qor",
                     alternative = c("two.sided", "less", "greater"), conf.level = 0.95,
                     true.q = 0, log.transf = FALSE, back.transf = FALSE, min.q = -Inf,
-                    p = NULL)
+                    p = NULL, ...)
 {
+  if (!is.numeric(x))
+    stop("Argument 'x' must be numeric.")
+
+  if(!all(is.null(c(u, coef, u2, coef2)) | is.numeric(c(u, coef, u2, coef2))))
+    stop("Probability and coefficient arguments (i.e. 'u', 'coef', 'u2', 'coef2') must be either numeric or not specified (default to NULL).")
+
   if (is.null(y)) {
     samples <- "One sample"
     dname <- deparse(substitute(x))
   }
   else {
+    if (!is.numeric(y))
+      stop("argument 'y' must be numeric")
     samples <- "Two sample"
     dname <- paste(deparse(substitute(x)), "and", deparse(substitute(y)))
   }
-  if (any(is.na(x))) {
+  if (anyNA(x)) {
     count.x.na <- sum(is.na(x))
     warning(paste0(count.x.na), " missing values removed in ",
             deparse(substitute(x)), ".\n")
     x <- na.omit(x)
   }
-  if (any(is.na(y))) {
+  if (anyNA(y)) {
     count.y.na <- sum(is.na(y))
     warning(paste0(count.y.na), " missing values removed in ",
             deparse(substitute(y)), ".\n")
@@ -261,7 +272,7 @@ q.test <- function (x, y = NULL, measure = "median", u = NULL, coef = NULL,
                      byrow = TRUE)
       u <- as.numeric(substring(measure, c(3, 5), c(4,
                                                     6)))/100
-      if (any(is.na(u)))
+      if (anyNA(u))
         stop(ratio.error)
       measure.name <- paste0("ratio of ", u[1], " and ",
                              u[2], " quantiles")
@@ -306,7 +317,7 @@ q.test <- function (x, y = NULL, measure = "median", u = NULL, coef = NULL,
   if (!var.method %in% c("qor", "density"))
     stop("Argument method must be either 'qor' or 'density'.\n")
   qestx <- quantile(x, u, type = quantile.type)
-  covQx <- qcov(x, u, method = var.method, quantile.type = quantile.type)
+  covQx <- qcov(x, u, method = var.method, quantile.type = quantile.type, ...)
   if (is.vector(coef)) {
     covQx.coef <- crossprod(covQx, coef)
     covQx.coef2 <- crossprod(coef, (covQx.coef))
@@ -335,7 +346,7 @@ q.test <- function (x, y = NULL, measure = "median", u = NULL, coef = NULL,
   else transf.text <- NULL
   if (!is.null(y)) {
     qesty <- quantile(y, u, type = quantile.type)
-    covQy <- qcov(y, u, method = var.method, quantile.type = quantile.type)
+    covQy <- qcov(y, u, method = var.method, quantile.type = quantile.type, ...)
     if (is.vector(coef)) {
       covQy.coef <- crossprod(covQy, coef)
       covQy.coef2 <- crossprod(coef, (covQy.coef))

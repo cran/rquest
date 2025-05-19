@@ -1,4 +1,4 @@
-#' qineq
+#' Hypothesis Tests and Confidence Intervals for Quantile-based Inequality Measures
 #' @description
 #' carry out hypothesis tests and obtain associated confidence intervals for quantile based inequality measures
 #' @details
@@ -11,7 +11,9 @@
 #'
 #' The default `var.method="qor"` is to estimate the probability density function directly using the lognormal Quantile Optimality Ratio (QOR)
 #' for choosing a suitable bandwidth (Prendergast & Staudte,2016b). Alternatively, the variances can be
-#' estimated by inverting a density estimator evaluated at the quantiles and this can be done using `var.method = "density"`.
+#' estimated by inverting a density estimator evaluated at the quantiles and this can be done using `var.method = "density"`. If `var.method = "density"`,
+#' then the function density is used to estimate the probability density function which is needed for the calculation of the covariance matrix using function qcov.
+#' If needed, additional arguments can be passed to density (see ?density for details on possible additional arguments).
 #'
 #' For more information and further examples, see Prendergast, Dedduwakumara & Staudte (2024)
 #'
@@ -25,6 +27,7 @@
 #' @param var.method approach use to estimate the quantile density function.  Either "qor"(default) or "density".(See details).
 #' @param conf.level coverage for the estimated confidence interval.
 #' @param true.ineq the specified hypothesized value of the inequality measure or the difference of the inequality depending on whether it was a one-sample test or a two-sample test.
+#' @param ... additional arguments to be passed to function qcov when var.method = “density” is used.
 #' @return hypothesis test results and associated confidence interval (a list with class "htest")
 #' @references
 #'
@@ -50,24 +53,29 @@
 
 qineq <- function (x, y = NULL, J = 100, measure = "QRI", alternative = c("two.sided",
                                                                           "less", "greater"), quantile.type = 8, var.method = "qor",
-                   conf.level = 0.95, true.ineq = 0.5)
+                   conf.level = 0.95, true.ineq = 0.5, ...)
 {
+  if (!is.numeric(x))
+    stop("Argument 'x' must be numeric.")
+
   alternative <- match.arg(alternative)
   if (is.null(y)) {
     samples <- "One sample"
     dname <- deparse(substitute(x))
   }
   else {
+    if (!is.numeric(y))
+      stop("argument 'y' must be numeric")
     samples <- "Two sample"
     dname <- paste(deparse(substitute(x)), "and", deparse(substitute(y)))
   }
-  if (any(is.na(x))) {
+  if (anyNA(x)) {
     count.x.na <- sum(is.na(x))
     warning(paste0(count.x.na), " missing values removed in ",
             deparse(substitute(x)), ".\n")
     x <- na.omit(x)
   }
-  if (any(is.na(y))) {
+  if (anyNA(y)) {
     count.y.na <- sum(is.na(y))
     warning(paste0(count.y.na), " missing values removed in ",
             deparse(substitute(y)), ".\n")
@@ -76,7 +84,7 @@ qineq <- function (x, y = NULL, J = 100, measure = "QRI", alternative = c("two.s
   alpha <- 1 - conf.level
   crit <- qnorm(1 - alpha/2)
   p <- (1:J - 0.5)/J
-  covQ <- qcov(x, sort(c(p/2, 1 - p/2)), method = "qor", quantile.type = quantile.type)
+  covQ <- qcov(x, sort(c(p/2, 1 - p/2)), method = var.method, quantile.type = quantile.type, ...)
   if (measure == "QRI" | measure == "G2") {
     Rpx <- R(x, p, quantile.type = quantile.type)
     if (measure == "QRI") {
@@ -96,9 +104,10 @@ qineq <- function (x, y = NULL, J = 100, measure = "QRI", alternative = c("two.s
     covQtr <- covQ[1:J, (2 * J):(J + 1)]
     covQbl <- covQ[(2 * J):(J + 1), 1:J]
     covQbr <- covQ[(2 * J):(J + 1), (2 * J):(J + 1)]
-    ptp <- crossprod(t(multp), multp)
-    qtq <- crossprod(t(1/quantile(x, 1 - p/2)), 1/quantile(x, 1 - p/2))
-    covR <- (ptp) * (qtq) * (covQtl - rowR * covQtr - colR * covQbl + colR * rowR * covQbr)
+    ptp <- tcrossprod(multp)
+    qtq <- tcrossprod(1/quantile(x, 1 - p/2))
+    covR <- (ptp) * (qtq) * (covQtl - rowR * covQtr - colR *
+                               covQbl + colR * rowR * covQbr)
     sterrx <- sqrt(mult^2 * sum(covR)/J^2)
     if (!is.null(y)) {
       Rpy <- R(y, p, quantile.type = quantile.type)
@@ -106,14 +115,16 @@ qineq <- function (x, y = NULL, J = 100, measure = "QRI", alternative = c("two.s
       names(esty) <- measure
       colR <- matrix(Rpy, J, J, byrow = FALSE)
       rowR <- matrix(Rpy, J, J, byrow = TRUE)
-      covQy <- qcov(y, sort(c(p/2, 1 - p/2)), method = "qor", quantile.type = quantile.type)
+      covQy <- qcov(y, sort(c(p/2, 1 - p/2)), method = var.method,
+                    quantile.type = quantile.type, ...)
       covQtl <- covQy[1:J, 1:J]
       covQtr <- covQy[1:J, (2 * J):(J + 1)]
       covQbl <- covQy[(2 * J):(J + 1), 1:J]
       covQbr <- covQy[(2 * J):(J + 1), (2 * J):(J + 1)]
-      ptp <- crossprod(t(multp), multp)
-      qtq <- crossprod(t(1/quantile(y, 1 - p/2)), 1/quantile(y, 1 - p/2))
-      covR <- (ptp) * (qtq) * (covQtl - rowR * covQtr - colR * covQbl + colR * rowR * covQbr)
+      ptp <- tcrossprod(multp)
+      qtq <- tcrossprod(1/quantile(y, 1 - p/2))
+      covR <- (ptp) * (qtq) * (covQtl - rowR * covQtr -
+                                 colR * covQbl + colR * rowR * covQbr)
       sterry <- sqrt(mult^2 * sum(covR)/J^2)
     }
   }

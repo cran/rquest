@@ -2,7 +2,7 @@
 % Please edit documentation in R/qineq.R
 \name{qineq}
 \alias{qineq}
-\title{qineq}
+\title{Hypothesis Tests and Confidence Intervals for Quantile-based Inequality Measures}
 \usage{
 qineq(
   x,
@@ -13,7 +13,8 @@ qineq(
   quantile.type = 8,
   var.method = "qor",
   conf.level = 0.95,
-  true.ineq = 0.5
+  true.ineq = 0.5,
+  ...
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ for more details)}
 \item{conf.level}{coverage for the estimated confidence interval.}
 
 \item{true.ineq}{the specified hypothesized value of the inequality measure or the difference of the inequality depending on whether it was a one-sample test or a two-sample test.}
+
+\item{...}{additional arguments to be passed to function qcov when var.method = “density” is used.}
 }
 \value{
 hypothesis test results and associated confidence interval (a list with class "htest")
@@ -52,7 +55,9 @@ The available options for quantile based measures in argument \code{measure} are
 
 The default \code{var.method="qor"} is to estimate the probability density function directly using the lognormal Quantile Optimality Ratio (QOR)
 for choosing a suitable bandwidth (Prendergast & Staudte,2016b). Alternatively, the variances can be
-estimated by inverting a density estimator evaluated at the quantiles and this can be done using \code{var.method = "density"}.
+estimated by inverting a density estimator evaluated at the quantiles and this can be done using \code{var.method = "density"}. If \code{var.method = "density"},
+then the function density is used to estimate the probability density function which is needed for the calculation of the covariance matrix using function qcov.
+If needed, additional arguments can be passed to density (see ?density for details on possible additional arguments).
 
 For more information and further examples, see Prendergast, Dedduwakumara & Staudte (2024)
 }

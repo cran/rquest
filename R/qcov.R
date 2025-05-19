@@ -1,4 +1,4 @@
-#' qcov
+#' Approximate Covariance Matrix Estimation for Vectors of Quantile Estimators
 #' @description
 #' compute a covariance matrix consisting of variances (on the diagonal) for quantile estimates and covariances (off-diagonal) between different quantile estimates
 #' @details
@@ -6,13 +6,18 @@
 #' This is done via estimating the inverted density function evaluated at the respective quantiles.
 #' The default for this is to use the quantile optimality ratio (QOR) approach (Prendergast & Staudte, 2016) which computes an optimal bandwidth.
 #' Alternatively, using `method = "density"` will use the generic density function to estimate the density.
+#' The estimated variances and covariance requires estimation of the probability density function.
+#' If `method = "density"`, then the function density is used to do this.  If needed, additional arguments
+#' can be passed to density (see ?density for details on possible additional arguments).
 #' @param x a numeric vector of data values.
-#' @param u a numeric vector of probability values in \[0, 1\]) specifying the quantiles to be estimate.
+#' @param u a numeric vector of probability values in \[0, 1\]) specifying the quantiles to be estimated. Note that u must include
+#' numeric values between, and not including, 0 and 1 and missing values are not allowed.
 #' @param method approach use to estimate the quantile density function. Either "qor" or "density".
 #' @param FUN QOR function for the log-normal
 #' @param quantile.type argument for the quantile function.  Default is set to 8 so that output is consistent with default quantile function use and other functions such as IQR (see help file for `quantile()`
 #' for more details)
 #' @param bw.correct replace bw by the values of v when v<=bw (see Prendergast & Staudte (2016b) for more details)
+#' @param ... additional arguments to be passed to function density when method = “density” is used.
 #' @return a covariance matrix consisting of variances (on the diagonal) for quantile estimates and covariances (off-diagonal) between different quantile estimates
 #' @references
 #' Prendergast, L. A., & Staudte, R. G. (2016). Exploiting the quantile optimality ratio in finding confidence intervals for quantiles. Stat, 5(1), 70-81
@@ -31,8 +36,14 @@
 #' qcov(x, c(0.25, 0.5, 0.75))
 
 qcov <- function (x, u, method = "qor", FUN = qor.ln, quantile.type = 8,
-                  bw.correct = TRUE)
+                  bw.correct = TRUE, ...)
 {
+  if (!is.numeric(x))
+    stop("Argument 'x' must be numeric.")
+
+  if(any(u <= 0 | u >=1) | anyNA(u)){
+    stop("Argument u must be a numeric vector of probability values between, but not including, 0 and 1.")
+  }
   n <- length(x)
   qest <- quantile(x, u, type = quantile.type)
   u1u <- u %*% t(1 - u)
@@ -51,12 +62,12 @@ qcov <- function (x, u, method = "qor", FUN = qor.ln, quantile.type = 8,
       kernepach((m1 - m2/n) * (1/bw)) * (1/bw)
     x.sorted <- sort(x)
     q.hat <- c(consts %*% x.sorted)
-    covQ <- u1u * (q.hat %*% t(q.hat))/n
+    covQ <- u1u * tcrossprod(q.hat)/n
   }
   else if (method == "density") {
-    dest <- density(x)
+    dest <- density(x, ...)
     df <- approxfun(dest)
-    covQ <- u1u * (crossprod(t(1/df(qest)), 1/df(qest)))/n # changed this line
+    covQ <- u1u * (tcrossprod(1/df(qest)))/n
   }
   rownames(covQ) <- u
   colnames(covQ) <- u

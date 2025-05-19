@@ -2,7 +2,7 @@
 % Please edit documentation in R/q.test.R
 \name{q.test}
 \alias{q.test}
-\title{q.test}
+\title{Hypothesis Tests and Confidence Intervals for functions of quantiles}
 \usage{
 q.test(
   x,
@@ -20,7 +20,8 @@ q.test(
   log.transf = FALSE,
   back.transf = FALSE,
   min.q = -Inf,
-  p = NULL
+  p = NULL,
+  ...
 )
 }
 \arguments{
@@ -56,6 +57,8 @@ for more details)}
 \item{min.q}{the lower bound for a one-sided confidence interval when alternative  argument if "less".}
 
 \item{p}{optional value in (0, 1) for Bowley's generalized skewness coefficient.}
+
+\item{...}{additional arguments to be passed to function qcov when var.method = “density” is used.}
 }
 \value{
 hypothesis test results and associated confidence interval (a list with class "htest")
@@ -80,7 +83,9 @@ for the generalized measure, and the right and left skew measures by Groeneveld 
 
 The default \code{var.method="qor"} is to estimate the probability density function directly using the lognormal Quantile Optimality Ratio (QOR)
 for choosing a suitable bandwidth (Prendergast & Staudte,2016). Alternatively, the variances can be
-estimated by inverting a density estimator evaluated at the quantiles and this can be done using \code{var.method = "density"}.
+estimated by inverting a density estimator evaluated at the quantiles and this can be done using \code{var.method = "density"}. If \code{var.method = "density"},
+then the function density is used to estimate the probability density function which is needed for the calculation of the covariance matrix using function qcov.
+If needed, additional arguments can be passed to density (see ?density for details on possible additional arguments).
 
 Additional to using a text string with argument measure to indicate which quantile-based measure is to be used (of those included for the \code{q.test} function),
 users can also define and request their own.  For example, while the median is the default for a single quantile, other quantiles can also be requested
