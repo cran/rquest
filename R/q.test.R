@@ -38,9 +38,9 @@
 #' @param x a numeric vector of data values.
 #' @param y an optional second vector of data values for two-sample testing.
 #' @param measure a character string specifying the quantile measure to be estimated (See details).
-#' @param u a numeric vector of probability values in \[0, 1\] indicating all quantiles to be estimated.
+#' @param u a numeric vector of probability values in the interval (0,1) specifying the quantiles to be estimated. Note that u must include numeric values between,and not including, 0 and 1 and missing values are not allowed.
 #' @param coef a vector or matrix with two rows specifying the coefficients that define the linear combinations (coefficients must match the corresponding probability values in u). If coef is a vector then a single linear combination (LC) is computed. If it is a matrix, then first row defines the numerator LS and the second the denominator LC.
-#' @param u2 a numeric vector of probability values in \[0, 1\] indicating all quantiles to be estimated for the denominator.
+#' @param u2 a numeric vector of probability values in the interval (0,1) specifying the quantiles to be estimated. Note that u2 must include numeric values between, and not including, 0 and 1 and missing values are not allowed.
 #' @param coef2 a vector specifying the coefficients that define the linear combination for the denominator.  This is can be used as an alternative to defining coef as matrix for ratios of linear combinations.
 #' @param quantile.type argument for the quantile function.  Default is set to 8 so that output is consistent with default quantile function use and other functions such as IQR (see help file for `quantile()`
 #' for more details)

@@ -10,8 +10,7 @@
 #' If `method = "density"`, then the function density is used to do this.  If needed, additional arguments
 #' can be passed to density (see ?density for details on possible additional arguments).
 #' @param x a numeric vector of data values.
-#' @param u a numeric vector of probability values in \[0, 1\]) specifying the quantiles to be estimated. Note that u must include
-#' numeric values between, and not including, 0 and 1 and missing values are not allowed.
+#' @param u a numeric vector of probability values in the interval (0,1) specifying the quantiles to be estimated. Note that u must include numeric values between, and not including, 0 and 1 and missing values are not allowed.
 #' @param method approach use to estimate the quantile density function. Either "qor" or "density".
 #' @param FUN QOR function for the log-normal
 #' @param quantile.type argument for the quantile function.  Default is set to 8 so that output is consistent with default quantile function use and other functions such as IQR (see help file for `quantile()`

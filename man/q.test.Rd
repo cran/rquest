@@ -31,11 +31,11 @@ q.test(
 
 \item{measure}{a character string specifying the quantile measure to be estimated (See details).}
 
-\item{u}{a numeric vector of probability values in [0, 1] indicating all quantiles to be estimated.}
+\item{u}{a numeric vector of probability values in the interval (0,1) specifying the quantiles to be estimated. Note that u must include numeric values between,and not including, 0 and 1 and missing values are not allowed.}
 
 \item{coef}{a vector or matrix with two rows specifying the coefficients that define the linear combinations (coefficients must match the corresponding probability values in u). If coef is a vector then a single linear combination (LC) is computed. If it is a matrix, then first row defines the numerator LS and the second the denominator LC.}
 
-\item{u2}{a numeric vector of probability values in [0, 1] indicating all quantiles to be estimated for the denominator.}
+\item{u2}{a numeric vector of probability values in the interval (0,1) specifying the quantiles to be estimated. Note that u2 must include numeric values between, and not including, 0 and 1 and missing values are not allowed.}
 
 \item{coef2}{a vector specifying the coefficients that define the linear combination for the denominator.  This is can be used as an alternative to defining coef as matrix for ratios of linear combinations.}
 

@@ -1,3 +1,7 @@
+# rquest 1.0.5
+
+* Changed the help files for u (qcov and q.test) and u2 (q.test)
+
 # rquest 1.0.4
 
 # rquest 1.0.3
