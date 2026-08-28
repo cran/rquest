@@ -33,16 +33,16 @@ q.test(
 
 \item{u}{a numeric vector of probability values in the interval (0,1) specifying the quantiles to be estimated. Note that u must include numeric values between,and not including, 0 and 1 and missing values are not allowed.}
 
-\item{coef}{a vector or matrix with two rows specifying the coefficients that define the linear combinations (coefficients must match the corresponding probability values in u). If coef is a vector then a single linear combination (LC) is computed. If it is a matrix, then first row defines the numerator LS and the second the denominator LC.}
+\item{coef}{a vector or matrix with two rows specifying the coefficients that define the linear combinations (coefficients must match the corresponding probability values in u). If coef is a vector then a single linear combination (LC) is computed. If it is a matrix, then first row defines the numerator LC and the second the denominator LC.}
 
 \item{u2}{a numeric vector of probability values in the interval (0,1) specifying the quantiles to be estimated. Note that u2 must include numeric values between, and not including, 0 and 1 and missing values are not allowed.}
 
-\item{coef2}{a vector specifying the coefficients that define the linear combination for the denominator.  This is can be used as an alternative to defining coef as matrix for ratios of linear combinations.}
+\item{coef2}{a vector specifying the coefficients that define the linear combination for the denominator.  This can be used as an alternative to defining coef as matrix for ratios of linear combinations.}
 
 \item{quantile.type}{argument for the quantile function.  Default is set to 8 so that output is consistent with default quantile function use and other functions such as IQR (see help file for \code{quantile()}
 for more details)}
 
-\item{var.method}{approach use to estimate the quantile density function.  Either "qor"(default) or "density" (See details).}
+\item{var.method}{approach use to estimate the quantile density function.  Either \code{"qor"} (default) or \code{"density"} (see details).}
 
 \item{alternative}{a character string for alternative hypothesis equal to one of "two.sided", "greater" or "less".}
 
@@ -50,7 +50,7 @@ for more details)}
 
 \item{true.q}{a numeric value for the true value under the null hypothesis test.}
 
-\item{log.transf}{boolean indicating whether the a log transformation of the measure is to be used (i.e., estimates of the log of the measure are computed).}
+\item{log.transf}{boolean indicating whether a log transformation of the measure is to be used (i.e., estimates of the log of the measure are computed).}
 
 \item{back.transf}{boolean indicating whether the measure and estimates should be back-transformed  to the original scale using exp.}
 
@@ -73,12 +73,14 @@ The quantile measures that can be estimated are specified in the \code{measure} 
 \itemize{
 \item \code{median}: The default choice.
 \item \code{iqr}: The interquartile range.
-\item \code{rCViqr}: The robust Coefficient of Variation measure (Arachchige et al.,2022)
+\item \code{rCViqr}: The robust Coefficient of Variation measure using the IQR (Arachchige et al.,2022)
 \item \code{bowley}, \code{groenR} and \code{groenL}: These choices are for Bowley's skew coefficient,
 for the generalized measure, and the right and left skew measures by Groeneveld and Meeden (Groeneveld & Meeden, 1984, 2009). For each of these measures, the user may specify the choice of p using argument \code{p}.  If this is not used, then the default is \code{p=0.25}.
+\item \code{kelly}: Kelly's quantile skewness measure, based on the
+0.1, 0.5, and 0.9 quantiles.
 \item \code{moors}: This Moors kurtosis measure (Moors, 1988).
 \item \code{lqw} and \code{rqw}: These are for the robust left and right tail weights (Brys et al., 2006).
-\item \code{qrxxyy}: A character string consisting of the first two characters "qr" and followed by four numbers will request a ratio of dependents quantiles (i.e. different quantiles from the same sample).The first two number digits (in place of "xx") will indicate the quantile for the numerator, and the second two numerical digits "yy" for the denominator.  For example, \code{qr9010} will estimate and test the ratio Q(0.9)/Q(0.1).
+\item \code{qrxxyy}: A character string consisting of the first two characters "qr" and followed by four numbers will request a ratio of dependent quantiles (i.e. different quantiles from the same sample).The first two number digits (in place of "xx") will indicate the quantile for the numerator, and the second two numerical digits "yy" for the denominator.  For example, \code{qr9010} will estimate and test the ratio Q(0.9)/Q(0.1).
 }
 
 The default \code{var.method="qor"} is to estimate the probability density function directly using the lognormal Quantile Optimality Ratio (QOR)
@@ -157,4 +159,8 @@ The Journal of Economic Inequality, 15, 277-293.
 
 Prendergast, L. A., Dedduwakumara, D.S. & Staudte, R.G. (2024) rquest: An R package for hypothesis tests and confidence intervals
 for quantiles and summary measures based on quantiles, preprint, pages 1-13
+}
+\seealso{
+\code{\link{qor}} for quantile optimality ratio values,
+\code{\link{qcov}} for covariance estimation of sample quantiles, and \code{\link{qrcov}} for covariance estimation of ratios of linear combinations of quantiles.
 }

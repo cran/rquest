@@ -4,30 +4,32 @@
 #' and ratios of such linear combinations.
 #' @details
 #'
-#' This function `q.test` performs hypothesis tests and calculates confidence intervals for linear combinations of quantiles.
-#' The quantile measures that can be estimated are specified in the `measure` argument and are listed below.
+#' This function \code{q.test} performs hypothesis tests and calculates confidence intervals for linear combinations of quantiles.
+#' The quantile measures that can be estimated are specified in the \code{measure} argument and are listed below.
 #'
 #' * `median`: The default choice.
 #' * `iqr`: The interquartile range.
-#' * `rCViqr`: The robust Coefficient of Variation measure (Arachchige et al.,2022)
+#' * `rCViqr`: The robust Coefficient of Variation measure using the IQR (Arachchige et al.,2022)
 #' * `bowley`, `groenR` and `groenL`: These choices are for Bowley's skew coefficient,
 #' for the generalized measure, and the right and left skew measures by Groeneveld and Meeden (Groeneveld & Meeden, 1984, 2009). For each of these measures, the user may specify the choice of p using argument `p`.  If this is not used, then the default is `p=0.25`.
+#' * `kelly`: Kelly's quantile skewness measure, based on the
+#' 0.1, 0.5, and 0.9 quantiles.
 #' * `moors`: This Moors kurtosis measure (Moors, 1988).
 #' * `lqw` and `rqw`: These are for the robust left and right tail weights (Brys et al., 2006).
-#' * `qrxxyy`: A character string consisting of the first two characters "qr" and followed by four numbers will request a ratio of dependents quantiles (i.e. different quantiles from the same sample).The first two number digits (in place of "xx") will indicate the quantile for the numerator, and the second two numerical digits "yy" for the denominator.  For example, `qr9010` will estimate and test the ratio Q(0.9)/Q(0.1).
+#' * `qrxxyy`: A character string consisting of the first two characters "qr" and followed by four numbers will request a ratio of dependent quantiles (i.e. different quantiles from the same sample).The first two number digits (in place of "xx") will indicate the quantile for the numerator, and the second two numerical digits "yy" for the denominator.  For example, `qr9010` will estimate and test the ratio Q(0.9)/Q(0.1).
 #'
-#' The default `var.method="qor"` is to estimate the probability density function directly using the lognormal Quantile Optimality Ratio (QOR)
+#' The default \code{var.method="qor"} is to estimate the probability density function directly using the lognormal Quantile Optimality Ratio (QOR)
 #' for choosing a suitable bandwidth (Prendergast & Staudte,2016). Alternatively, the variances can be
-#' estimated by inverting a density estimator evaluated at the quantiles and this can be done using `var.method = "density"`. If `var.method = "density"`,
+#' estimated by inverting a density estimator evaluated at the quantiles and this can be done using \code{var.method = "density"}. If \code{var.method = "density"},
 #' then the function density is used to estimate the probability density function which is needed for the calculation of the covariance matrix using function qcov.
 #' If needed, additional arguments can be passed to density (see ?density for details on possible additional arguments).
 #'
-#' Additional to using a text string with argument measure to indicate which quantile-based measure is to be used (of those included for the `q.test` function),
+#' Additional to using a text string with argument measure to indicate which quantile-based measure is to be used (of those included for the \code{q.test} function),
 #' users can also define and request their own.  For example, while the median is the default for a single quantile, other quantiles can also be requested
-#' (e.g., `u = 0.25` will request the first quartile).  This option is also included for linear combinations of quantiles and ratios of linear combinations,
-#' which can be done in two ways.  For a single linear combination, argument `u` is the vector of probability values defining the quantiles to be used,
-#' and argument `coef` is a vector of coefficients for the linear combination.  If a ratio is needed, then `u` and `coef` are used for the numerator and `u2` and `coef2`
-#' for the denominator linear combination.  Alternatively, a single `u` can be used to identify all quantiles for the ratio, and then `coef` can be a matrix (2 rows)
+#' (e.g., \code{u = 0.25} will request the first quartile).  This option is also included for linear combinations of quantiles and ratios of linear combinations,
+#' which can be done in two ways.  For a single linear combination, argument \code{u} is the vector of probability values defining the quantiles to be used,
+#' and argument `coef` is a vector of coefficients for the linear combination.  If a ratio is needed, then \code{u} and \code{coef} are used for the numerator and \code{u2} and \code{coef2}
+#' for the denominator linear combination.  Alternatively, a single \code{u} can be used to identify all quantiles for the ratio, and then `coef` can be a matrix (2 rows)
 #' whose first row specifies the coefficients for the numerator and the second row for the denominator. For more information and further examples,
 #' see Prendergast, Dedduwakumara & Staudte (2024), and the example code below shows how to obtain results for
 #' the robust CVs using all three approaches (to achieve identical results).
@@ -39,21 +41,24 @@
 #' @param y an optional second vector of data values for two-sample testing.
 #' @param measure a character string specifying the quantile measure to be estimated (See details).
 #' @param u a numeric vector of probability values in the interval (0,1) specifying the quantiles to be estimated. Note that u must include numeric values between,and not including, 0 and 1 and missing values are not allowed.
-#' @param coef a vector or matrix with two rows specifying the coefficients that define the linear combinations (coefficients must match the corresponding probability values in u). If coef is a vector then a single linear combination (LC) is computed. If it is a matrix, then first row defines the numerator LS and the second the denominator LC.
+#' @param coef a vector or matrix with two rows specifying the coefficients that define the linear combinations (coefficients must match the corresponding probability values in u). If coef is a vector then a single linear combination (LC) is computed. If it is a matrix, then first row defines the numerator LC and the second the denominator LC.
 #' @param u2 a numeric vector of probability values in the interval (0,1) specifying the quantiles to be estimated. Note that u2 must include numeric values between, and not including, 0 and 1 and missing values are not allowed.
-#' @param coef2 a vector specifying the coefficients that define the linear combination for the denominator.  This is can be used as an alternative to defining coef as matrix for ratios of linear combinations.
+#' @param coef2 a vector specifying the coefficients that define the linear combination for the denominator.  This can be used as an alternative to defining coef as matrix for ratios of linear combinations.
 #' @param quantile.type argument for the quantile function.  Default is set to 8 so that output is consistent with default quantile function use and other functions such as IQR (see help file for `quantile()`
 #' for more details)
-#' @param var.method approach use to estimate the quantile density function.  Either "qor"(default) or "density" (See details).
+#' @param var.method approach use to estimate the quantile density function.  Either \code{"qor"} (default) or \code{"density"} (see details).
 #' @param alternative a character string for alternative hypothesis equal to one of "two.sided", "greater" or "less".
 #' @param conf.level coverage for the estimated confidence interval.
 #' @param true.q a numeric value for the true value under the null hypothesis test.
-#' @param log.transf boolean indicating whether the a log transformation of the measure is to be used (i.e., estimates of the log of the measure are computed).
+#' @param log.transf boolean indicating whether a log transformation of the measure is to be used (i.e., estimates of the log of the measure are computed).
 #' @param back.transf boolean indicating whether the measure and estimates should be back-transformed  to the original scale using exp.
 #' @param min.q the lower bound for a one-sided confidence interval when alternative  argument if "less".
 #' @param p optional value in (0, 1) for Bowley's generalized skewness coefficient.
 #' @param ... additional arguments to be passed to function qcov when var.method = “density” is used.
 #' @return hypothesis test results and associated confidence interval (a list with class "htest")
+#' @seealso
+#' \code{\link{qor}} for quantile optimality ratio values,
+#' \code{\link{qcov}} for covariance estimation of sample quantiles, and \code{\link{qrcov}} for covariance estimation of ratios of linear combinations of quantiles.
 #' @references
 #'
 #' Arachchige, C. N., Cairns, M., & Prendergast, L. A. (2021). Interval estimators for ratios of independent quantiles and interquantile ranges.
@@ -313,9 +318,8 @@ q.test <- function (x, y = NULL, measure = "median", u = NULL, coef = NULL,
   }
   alpha <- 1 - conf.level
   crit <- qnorm(1 - alpha/2)
-  coef.string <- is.character(coef)
   if (!var.method %in% c("qor", "density"))
-    stop("Argument method must be either 'qor' or 'density'.\n")
+    stop("Argument var.method must be either 'qor' or 'density'.\n")
   qestx <- quantile(x, u, type = quantile.type)
   covQx <- qcov(x, u, method = var.method, quantile.type = quantile.type, ...)
   if (is.vector(coef)) {
@@ -337,6 +341,9 @@ q.test <- function (x, y = NULL, measure = "median", u = NULL, coef = NULL,
                      u1qx * s12x/u2qx^3)
   }
   if (log.transf) {
+    if (estx <= 0) {
+      stop("Estimates must be positive to use the log transformation.\n")
+    }
     sterrx <- sterrx/estx
     estx <- log(estx)
     if (back.transf)
@@ -366,6 +373,9 @@ q.test <- function (x, y = NULL, measure = "median", u = NULL, coef = NULL,
                        2 * u1qy * s12y/u2qy^3)
     }
     if (log.transf) {
+      if (esty <= 0) {
+        stop("Estimates must be positive to use the log transformation.\n")
+      }
       sterry <- sterry/esty
       esty <- log(esty)
       if (back.transf)

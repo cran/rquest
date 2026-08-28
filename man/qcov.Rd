@@ -8,54 +8,67 @@ qcov(
   x,
   u,
   method = "qor",
-  FUN = qor.ln,
+  dist = "gl",
   quantile.type = 8,
   bw.correct = TRUE,
+  params = NULL,
   ...
 )
 }
 \arguments{
 \item{x}{a numeric vector of data values.}
 
-\item{u}{a numeric vector of probability values in the interval (0,1) specifying the quantiles to be estimated. Note that u must include numeric values between, and not including, 0 and 1 and missing values are not allowed.}
+\item{u}{a numeric vector of probability values in the interval \eqn{(0,1)} specifying the quantiles to be estimated. Missing values are not allowed.}
 
-\item{method}{approach use to estimate the quantile density function. Either "qor" or "density".}
+\item{method}{the approach used to estimate the quantile density function. Either \code{"qor"} or \code{"density"}.}
 
-\item{FUN}{QOR function for the log-normal}
+\item{dist}{a character string naming a supported distribution or a quantile function name used by \code{qden}.}
 
-\item{quantile.type}{argument for the quantile function.  Default is set to 8 so that output is consistent with default quantile function use and other functions such as IQR (see help file for \code{quantile()}
-for more details)}
+\item{quantile.type}{argument for the quantile function. Default is set to \code{8} so that output is consistent with default quantile function use and other functions such as \code{IQR} (see \code{?quantile} for details).}
 
-\item{bw.correct}{replace bw by the values of v when v<=bw (see Prendergast & Staudte (2016b) for more details)}
+\item{bw.correct}{logical; if \code{TRUE}, the bandwidth is corrected near the boundary.}
 
-\item{...}{additional arguments to be passed to function density when method = “density” is used.}
+\item{params}{a list of parameter values for the chosen distribution. If \code{NULL}, parameters are estimated where needed.}
+
+\item{...}{additional arguments to be passed to \code{qden} when \code{method = "qor"} and to \code{density} when \code{method = "density"}.}
 }
 \value{
-a covariance matrix consisting of variances (on the diagonal) for quantile estimates and covariances (off-diagonal) between different quantile estimates
+a covariance matrix consisting of variances (on the diagonal) for quantile estimates and covariances (off-diagonal) between different quantile estimates.
 }
 \description{
 compute a covariance matrix consisting of variances (on the diagonal) for quantile estimates and covariances (off-diagonal) between different quantile estimates
 }
 \details{
-This function computes a covariance matrix for a vector of quantile estimators.
-This is done via estimating the inverted density function evaluated at the respective quantiles.
-The default for this is to use the quantile optimality ratio (QOR) approach (Prendergast & Staudte, 2016) which computes an optimal bandwidth.
-Alternatively, using \code{method = "density"} will use the generic density function to estimate the density.
-The estimated variances and covariance requires estimation of the probability density function.
-If \code{method = "density"}, then the function density is used to do this.  If needed, additional arguments
-can be passed to density (see ?density for details on possible additional arguments).
+This function computes an approximate covariance matrix for a vector of sample quantile estimators. The covariance structure is based on the asymptotic relationship, for \eqn{u_i\leq u_j} and sample size \eqn{n},
+\deqn{\mathrm{Cov}(\widehat Q(u_i), \widehat Q(u_j)) \approx
+\displaystyle\frac{u_i(1 - u_j)}{n}\, q(u_i)\, q(u_j),}
+where \eqn{q(u)=Q'(u)} is the quantile density.
+
+The quantile density is estimated by \code{qden}. By default, \code{method = "qor"} is used, which estimates the quantile density using the quantile optimality ratio (QOR) approach of Prendergast and Staudte (2016). Alternatively, \code{method = "density"} estimates the quantile density by fitting a density function and taking its reciprocal at the estimated quantiles.
+
+The argument \code{dist} specifies the working distribution used by \code{qden}. It may be one of the built-in distributions supported by \code{qden}, or a quantile function name when a user-supplied distribution is to be used. If \code{params} is \code{NULL}, the required distributional parameters are estimated from the data where appropriate.
+
+If \code{method = "qor"}, the bandwidth is selected using the QOR approach. The argument \code{bw.correct} controls the boundary correction used in that bandwidth calculation.
+
+If \code{method = "density"}, additional arguments in \code{...} are passed to \code{density} when density estimation is used directly.
 }
 \examples{
-# Create some data
 set.seed(1234)
 x <- rnorm(100)
 
-# Compute the variance-covariance matrix for sample quartiles.
+# Covariance matrix for sample quartiles
 qcov(x, c(0.25, 0.5, 0.75))
+
+# Density-based version
+qcov(x, c(0.25, 0.5, 0.75), method = "density")
 }
 \references{
-Prendergast, L. A., & Staudte, R. G. (2016). Exploiting the quantile optimality ratio in finding confidence intervals for quantiles. Stat, 5(1), 70-81
+Prendergast, L. A., & Staudte, R. G. (2016). Exploiting the quantile optimality ratio in finding confidence intervals for quantiles. \emph{Stat}, \strong{5}(1), 70--81.
 
-Prendergast, L. A., Dedduwakumara, D.S. & Staudte, R.G. (2024) rquest: An R package for hypothesis tests and confidence intervals
-for quantiles and summary measures based on quantiles, preprint, pages 1-13
+Prendergast, L. A., Dedduwakumara, D. S., & Staudte, R. G. (2024). \emph{rquest: An R package for hypothesis tests and confidence intervals for quantiles and summary measures based on quantiles}. Preprint, pages 1--13.
+}
+\seealso{
+\code{\link{qden}} for estimating the quantile density function,
+\code{\link{qor}} for quantile optimality ratio values, and
+\code{\link{qrcov}} for covariance matrices of ratios of linear combinations of quantiles.
 }

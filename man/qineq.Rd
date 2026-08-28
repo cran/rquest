@@ -24,7 +24,7 @@ qineq(
 
 \item{J}{number of grid points}
 
-\item{measure}{quantile based inequality measure to be used.  Either "QRI" (default) or "G2".(See details).}
+\item{measure}{character string of quantile based inequality measure to be estimated or a list of parameter choices or formula for user defined measures (see details for available measures and user defined measures).}
 
 \item{alternative}{a character string specifying the alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".}
 
@@ -47,10 +47,23 @@ carry out hypothesis tests and obtain associated confidence intervals for quanti
 }
 \details{
 This function performs hypothesis testing and calculates the corresponding confidence intervals for inequality measures based on quantiles.
+Let \eqn{l_1(p)} and \eqn{l_2(p)} be functions of \eqn{p \in [0,1]} that defined linear combinations of quantiles.  For example, if
+\eqn{x_{0.4}} and \eqn{x_{0.6}} are the 0.4 and 0.6 quantiles respectively, and the ratio \eqn{x_{0.4}/(x_{0.4} + x_{0.6})} is of
+interest, then possible choices are \eqn{l_1(p)=x_p} and \eqn{l_2(p)=x_p + x_{1-p}} for \eqn{p=0.4}.  The inequality measures supported
+are of the form
+\deqn{I = 1 - \displaystyle\int^1_0\frac{l_1(p)}{l_2(p)}dp}
+and where \eqn{I\in [0, 1]}.
+
+Estimation of \eqn{I} is done numerically over a grid of points determined by integer \eqn{J} (default 100), where \eqn{p_j = (j-1/2)/J},
+and the estimate to \eqn{I} is
+\deqn{\widehat{I} = 1 - \frac{1}{J}\displaystyle\sum_{j=1}^J\frac{\hat{l}_1(p_j)}{\hat{l}_2(p_j)}}
+where \eqn{\hat{l}_1(p_j)} and \eqn{\hat{l}_2(p_j)} are the estimated linear combinations of quantiles at \eqn{p_j}.
+
 The available options for quantile based measures in argument \code{measure} are shown below.
 \itemize{
-\item \code{QRI}: Quantile Ratio Index (Prendergast & Staudte, 2018). This is the default choice.
-\item \code{G2}:  Quantile variant of the Gini index (Prendergast & Staudte, 2016a).
+\item \code{"QRI"}                : Quantile Ratio Index from Prendergast & Staudte (2018). This is the default choice.
+\item \code{"G1"}, \code{"G2"}, \verb{"G3}" :  Quantile variants of the Gini index from Prendergast & Staudte (2016a).
+\item \code{"S1"}, \code{"S2"}         :  'Strategy 1' and 'Strategy 2' income inequalities from Brazauskas et al. (2024).
 }
 
 The default \code{var.method="qor"} is to estimate the probability density function directly using the lognormal Quantile Optimality Ratio (QOR)
@@ -59,15 +72,38 @@ estimated by inverting a density estimator evaluated at the quantiles and this c
 then the function density is used to estimate the probability density function which is needed for the calculation of the covariance matrix using function qcov.
 If needed, additional arguments can be passed to density (see ?density for details on possible additional arguments).
 
-For more information and further examples, see Prendergast, Dedduwakumara & Staudte (2024)
+It is also possible for users to define their own inequality measures either using a formula or by creating a list.  The formula approach is
+the most straightforward of the two and can be defined in terms \code{Q} to specify a quantile function, \code{p} and then specifying the
+formula which must be a ratio of linear combinations of quantiles, and where the coefficients may also contain \code{p}.  As an example,
+the QRI measure would be \code{measure = ~ Q(p/2)/Q(1 - p/2)} while G2 would require \code{measure = ~ 2*Q(p/2)/Q(1 - p/2)}.  More details
+and examples can be found in Prendergast et al. (2024).
+
+If \code{measure} is a list, it must be of the form \code{list(u=...,coef1=...,coef2)} where \code{u} is a numeric vector indicating the
+probabilities for every quantile estimate needed for \eqn{\hat{I}}, \code{coef1} and \code{coef2} are numeric matrices with \code{J} rows
+and number of columns equal to the length of \code{u}.  Each row of \code{coef1} stores the coefficients for the numerator
+linear combination, and ditto \code{coef2} for the denominator.
+
+For more information and further examples, including user defined measures, see Prendergast, Dedduwakumara & Staudte (2024).
 }
 \examples{
 # Create some data
 x <- c(8.43,7.08,8.79,8.88,7.87,5.94,8.79,5.46,8.11,7.08)
 y <- c(13.44,13.65,14.77,9.51,14.07,10.92,11.59,13.42,8.93,10.88)
 
-# Two sample hypothesis test for the QRI measure
-qineq(x,y)
+# Test of equality of QRI measure between two groups
+qineq(x, y, measure = "QRI")
+
+# Another way by defining the formula for the ratio in QRI
+qineq(x, y, measure = ~ Q(p/2)/Q(1 - p/2))
+
+# Another way by defining the quantiles and coefficients directly in a list
+J <- 100
+p <- (1:J - 0.5)/J
+u <- sort(c(p/2, 1 - p/2))
+num <- cbind(diag(rep(1, J)), matrix(0, J, J))
+den <- cbind(matrix(0, J, J), diag(J)[, J:1])
+qineq(x, y, measure = list(u = u, coef1 = num, coef2 = den))
+
 }
 \references{
 Prendergast, L.A., & Staudte, R.G. (2016a). Quantile versions of the Lorenz curve. Electronic Journal of
@@ -79,4 +115,6 @@ Prendergast, L. A., & Staudte, R. G. (2018). A simple and effective inequality m
 
 Prendergast, L. A., Dedduwakumara, D.S. & Staudte, R.G. (2024) rquest: An R package for hypothesis tests and confidence intervals
 for quantiles and summary measures based on quantiles, preprint, pages 1-13
+
+Brazauskas, V., Greselin, F., & Zitikis, R. (2024). Measuring income inequality via percentile relativities. Quality & Quantity, 58(5), 4859-4896.
 }
