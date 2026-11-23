@@ -12,7 +12,7 @@ q.test(
   coef = NULL,
   u2 = NULL,
   coef2 = NULL,
-  quantile.type = 8,
+  quantile.type = 7,
   var.method = "qor",
   alternative = c("two.sided", "less", "greater"),
   conf.level = 0.95,
@@ -39,7 +39,7 @@ q.test(
 
 \item{coef2}{a vector specifying the coefficients that define the linear combination for the denominator.  This can be used as an alternative to defining coef as matrix for ratios of linear combinations.}
 
-\item{quantile.type}{argument for the quantile function.  Default is set to 8 so that output is consistent with default quantile function use and other functions such as IQR (see help file for \code{quantile()}
+\item{quantile.type}{argument for the quantile function.  Default is set to 7 so that output is consistent with default quantile function use and other functions such as IQR (see help file for \code{quantile()}
 for more details)}
 
 \item{var.method}{approach use to estimate the quantile density function.  Either \code{"qor"} (default) or \code{"density"} (see details).}
@@ -58,7 +58,7 @@ for more details)}
 
 \item{p}{optional value in (0, 1) for Bowley's generalized skewness coefficient.}
 
-\item{...}{additional arguments to be passed to function qcov when var.method = “density” is used.}
+\item{...}{additional arguments to be passed to function \code{qcov()}.}
 }
 \value{
 hypothesis test results and associated confidence interval (a list with class "htest")
@@ -118,18 +118,18 @@ q.test(x, y, measure = "rCViqr", log.transf = TRUE, back.transf = TRUE)
 # The same two samples hypothesis test for robust coefficient variations (0.75*IQR/median)
 # by using 'u',''u2','coef' and 'coef2' arguments.
 u<-c(0.25,0.75)
-coef<-0.75*c(-1,1)
+iqr_weights<-0.75*c(-1,1)
 u2<-0.5
 coef2<-1
-q.test(x,y,u=u,u2=u2,coef=coef,coef2=coef2,log.transf=TRUE,back.transf=TRUE)
+q.test(x,y,u=u,u2=u2,coef=iqr_weights,coef2=coef2,log.transf=TRUE,back.transf=TRUE)
 
 # The same two samples hypothesis test for robust coefficient variations (0.75*IQR/median)
 # by using only 'u' and 'coef' arguments.
 u<-c(0.25,0.5,0.75)
 num <- 0.75*c(-1,0,1)
 den <- c(0,1,0)
-coef <- rbind(num, den)
-q.test(x,y,u=u,coef=coef,log.transf=TRUE,back.transf=TRUE)
+ratio_weights <- rbind(num, den)
+q.test(x,y,u=u,coef=ratio_weights,log.transf=TRUE,back.transf=TRUE)
 }
 \references{
 Arachchige, C. N., Cairns, M., & Prendergast, L. A. (2021). Interval estimators for ratios of independent quantiles and interquantile ranges.

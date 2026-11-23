@@ -17,9 +17,9 @@
 #' @param u a numeric vector of probability values in the interval (0,1) specifying the quantiles to be estimated. Note that u must include numeric values between, and not including, 0 and 1 and missing values are not allowed.
 #' @param coef1 a numeric matrix whose \eqn{i}th row contains the coefficients for the numerator linear combination for the \eqn{i}th ratio.
 #' @param coef2 a numeric matrix whose \eqn{i}th row contains the coefficients for the denominator linear combination for the \eqn{i}th ratio.
-#' @param quantile.type argument for the quantile function.  Default is set to 8 so that output is consistent with default quantile function use and other functions such as IQR (see help file for `quantile()`
+#' @param quantile.type argument for the quantile function.  Default is set to 7 so that output is consistent with default quantile function use and other functions such as IQR (see help file for `quantile()`
 #' for more details)
-#' @param ... additional arguments to be passed to function density when method = “density” is used.
+#' @param ... additional arguments to be passed to function \code{qcov()}.
 #' @return a list consisting of `ratios` (the ratio estimates) and `cov` (the estimated covariance matrix).
 #' @references
 #' Prendergast, L. A., Dedduwakumara, D.S. & Staudte, R.G. (2024) rquest: An R package for hypothesis tests and confidence intervals
@@ -39,7 +39,7 @@
 #' qrcov(x, c(0.25, 0.5, 0.75), coef1 = coef1, coef2 = coef2)
 
 
-qrcov <- function(x, u, coef1, coef2, quantile.type = 8, ...) {
+qrcov <- function(x, u, coef1, coef2, quantile.type = 7, ...) {
   if (!is.numeric(x))
     stop("Argument 'x' must be numeric.")
   if (any(u <= 0 | u >= 1) | anyNA(u)) {

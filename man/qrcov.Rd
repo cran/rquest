@@ -4,7 +4,7 @@
 \alias{qrcov}
 \title{Approximate Covariance Matrix Estimation for Ratios of Linear Combinations of Quantile Estimators}
 \usage{
-qrcov(x, u, coef1, coef2, quantile.type = 8, ...)
+qrcov(x, u, coef1, coef2, quantile.type = 7, ...)
 }
 \arguments{
 \item{x}{a numeric vector of data values.}
@@ -15,10 +15,10 @@ qrcov(x, u, coef1, coef2, quantile.type = 8, ...)
 
 \item{coef2}{a numeric matrix whose \eqn{i}th row contains the coefficients for the denominator linear combination for the \eqn{i}th ratio.}
 
-\item{quantile.type}{argument for the quantile function.  Default is set to 8 so that output is consistent with default quantile function use and other functions such as IQR (see help file for \code{quantile()}
+\item{quantile.type}{argument for the quantile function.  Default is set to 7 so that output is consistent with default quantile function use and other functions such as IQR (see help file for \code{quantile()}
 for more details)}
 
-\item{...}{additional arguments to be passed to function density when method = “density” is used.}
+\item{...}{additional arguments to be passed to function \code{qcov()}.}
 }
 \value{
 a list consisting of \code{ratios} (the ratio estimates) and \code{cov} (the estimated covariance matrix).

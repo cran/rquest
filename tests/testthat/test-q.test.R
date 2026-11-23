@@ -495,8 +495,8 @@ test_that("q.test output is correct", {
     ),
     as.numeric(
       log(
-        quantile(c(1:10), 0.25, type = 8) /
-          quantile(c(1:10), 0.5, type = 8)
+        quantile(c(1:10), 0.25) /
+          quantile(c(1:10), 0.5)
       )
     )
   )
@@ -516,8 +516,8 @@ test_that("q.test output is correct", {
       )$estimate
     ),
     as.numeric(
-      quantile(c(1:10), 0.25, type = 8) /
-        quantile(c(1:10), 0.5, type = 8)
+      quantile(c(1:10), 0.25) /
+        quantile(c(1:10), 0.5)
     )
   )
 

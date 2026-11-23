@@ -9,7 +9,7 @@ qcov(
   u,
   method = "qor",
   dist = "gl",
-  quantile.type = 8,
+  quantile.type = 7,
   bw.correct = TRUE,
   params = NULL,
   ...
@@ -24,7 +24,7 @@ qcov(
 
 \item{dist}{a character string naming a supported distribution or a quantile function name used by \code{qden}.}
 
-\item{quantile.type}{argument for the quantile function. Default is set to \code{8} so that output is consistent with default quantile function use and other functions such as \code{IQR} (see \code{?quantile} for details).}
+\item{quantile.type}{argument for the quantile function. Default is set to \code{7} so that output is consistent with default quantile function use and other functions such as \code{IQR} (see \code{?quantile} for details).}
 
 \item{bw.correct}{logical; if \code{TRUE}, the bandwidth is corrected near the boundary.}
 

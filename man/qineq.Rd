@@ -10,7 +10,7 @@ qineq(
   J = 100,
   measure = "QRI",
   alternative = c("two.sided", "less", "greater"),
-  quantile.type = 8,
+  quantile.type = 7,
   var.method = "qor",
   conf.level = 0.95,
   true.ineq = 0.5,
@@ -28,7 +28,7 @@ qineq(
 
 \item{alternative}{a character string specifying the alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".}
 
-\item{quantile.type}{argument for the quantile function.  Default is set to 8 so that output is consistent with default quantile function use and other functions such as IQR (see help file for \code{quantile()}
+\item{quantile.type}{argument for the quantile function.  Default is set to 7 so that output is consistent with default quantile function use and other functions such as IQR (see help file for \code{quantile()}
 for more details)}
 
 \item{var.method}{approach use to estimate the quantile density function.  Either "qor"(default) or "density".(See details).}
@@ -37,7 +37,7 @@ for more details)}
 
 \item{true.ineq}{the specified hypothesized value of the inequality measure or the difference of the inequality depending on whether it was a one-sample test or a two-sample test.}
 
-\item{...}{additional arguments to be passed to function qcov when var.method = “density” is used.}
+\item{...}{additional arguments to be passed to function \code{qcov()}.}
 }
 \value{
 hypothesis test results and associated confidence interval (a list with class "htest")

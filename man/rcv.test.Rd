@@ -8,7 +8,7 @@ rcv.test(
   x,
   y = NULL,
   numerator = "mad",
-  quantile.type = 8,
+  quantile.type = 7,
   var.method = "qor",
   alternative = c("two.sided", "less", "greater"),
   conf.level = 0.95,
@@ -25,7 +25,7 @@ rcv.test(
 
 \item{numerator}{a character string specifying the numerator used in the robust coefficient of variation. Must be either \code{"mad"} or \code{"iqr"}.}
 
-\item{quantile.type}{argument for the quantile function. Default is \code{8} so that output is consistent with the default quantile function use and with other functions such as \code{IQR} (see \code{?quantile} for details).}
+\item{quantile.type}{argument for the quantile function. Default is \code{7} so that output is consistent with the default quantile function use and with other functions such as \code{IQR} (see \code{?quantile} for details).}
 
 \item{var.method}{method used to estimate the quantile density function when \code{numerator = "iqr"}. Either \code{"qor"} (default) or \code{"density"}.}
 

@@ -44,7 +44,7 @@
 #' @param coef a vector or matrix with two rows specifying the coefficients that define the linear combinations (coefficients must match the corresponding probability values in u). If coef is a vector then a single linear combination (LC) is computed. If it is a matrix, then first row defines the numerator LC and the second the denominator LC.
 #' @param u2 a numeric vector of probability values in the interval (0,1) specifying the quantiles to be estimated. Note that u2 must include numeric values between, and not including, 0 and 1 and missing values are not allowed.
 #' @param coef2 a vector specifying the coefficients that define the linear combination for the denominator.  This can be used as an alternative to defining coef as matrix for ratios of linear combinations.
-#' @param quantile.type argument for the quantile function.  Default is set to 8 so that output is consistent with default quantile function use and other functions such as IQR (see help file for `quantile()`
+#' @param quantile.type argument for the quantile function.  Default is set to 7 so that output is consistent with default quantile function use and other functions such as IQR (see help file for `quantile()`
 #' for more details)
 #' @param var.method approach use to estimate the quantile density function.  Either \code{"qor"} (default) or \code{"density"} (see details).
 #' @param alternative a character string for alternative hypothesis equal to one of "two.sided", "greater" or "less".
@@ -54,7 +54,7 @@
 #' @param back.transf boolean indicating whether the measure and estimates should be back-transformed  to the original scale using exp.
 #' @param min.q the lower bound for a one-sided confidence interval when alternative  argument if "less".
 #' @param p optional value in (0, 1) for Bowley's generalized skewness coefficient.
-#' @param ... additional arguments to be passed to function qcov when var.method = “density” is used.
+#' @param ... additional arguments to be passed to function \code{qcov()}.
 #' @return hypothesis test results and associated confidence interval (a list with class "htest")
 #' @seealso
 #' \code{\link{qor}} for quantile optimality ratio values,
@@ -107,24 +107,24 @@
 #' # The same two samples hypothesis test for robust coefficient variations (0.75*IQR/median)
 #' # by using 'u',''u2','coef' and 'coef2' arguments.
 #' u<-c(0.25,0.75)
-#' coef<-0.75*c(-1,1)
+#' iqr_weights<-0.75*c(-1,1)
 #' u2<-0.5
 #' coef2<-1
-#' q.test(x,y,u=u,u2=u2,coef=coef,coef2=coef2,log.transf=TRUE,back.transf=TRUE)
+#' q.test(x,y,u=u,u2=u2,coef=iqr_weights,coef2=coef2,log.transf=TRUE,back.transf=TRUE)
 #'
 #' # The same two samples hypothesis test for robust coefficient variations (0.75*IQR/median)
 #' # by using only 'u' and 'coef' arguments.
 #' u<-c(0.25,0.5,0.75)
 #' num <- 0.75*c(-1,0,1)
 #' den <- c(0,1,0)
-#' coef <- rbind(num, den)
-#' q.test(x,y,u=u,coef=coef,log.transf=TRUE,back.transf=TRUE)
+#' ratio_weights <- rbind(num, den)
+#' q.test(x,y,u=u,coef=ratio_weights,log.transf=TRUE,back.transf=TRUE)
 
 
 # Linear combination of quantiles -----------------------------------------
 
 q.test <- function (x, y = NULL, measure = "median", u = NULL, coef = NULL,
-                    u2 = NULL, coef2 = NULL, quantile.type = 8, var.method = "qor",
+                    u2 = NULL, coef2 = NULL, quantile.type = 7, var.method = "qor",
                     alternative = c("two.sided", "less", "greater"), conf.level = 0.95,
                     true.q = 0, log.transf = FALSE, back.transf = FALSE, min.q = -Inf,
                     p = NULL, ...)
@@ -320,8 +320,21 @@ q.test <- function (x, y = NULL, measure = "median", u = NULL, coef = NULL,
   crit <- qnorm(1 - alpha/2)
   if (!var.method %in% c("qor", "density"))
     stop("Argument var.method must be either 'qor' or 'density'.\n")
+
+  dots <- list(...)
+  nx <- length(x)
+  dots.x <- dots
+
+  if (var.method == "qor" && !("dist" %in% names(dots))) {
+    dots.x$dist <- if (nx < 50L) "lnorm" else "gl"
+  }
+
   qestx <- quantile(x, u, type = quantile.type)
-  covQx <- qcov(x, u, method = var.method, quantile.type = quantile.type, ...)
+  covQx <- do.call(qcov, c(
+    list(x = x, u = u, method = var.method, quantile.type = quantile.type),
+    dots.x
+  ))
+
   if (is.vector(coef)) {
     covQx.coef <- crossprod(covQx, coef)
     covQx.coef2 <- crossprod(coef, (covQx.coef))
@@ -352,8 +365,20 @@ q.test <- function (x, y = NULL, measure = "median", u = NULL, coef = NULL,
   }
   else transf.text <- NULL
   if (!is.null(y)) {
+
+    ny <- length(y)
+    dots.y <- dots
+
+    if (var.method == "qor" && !("dist" %in% names(dots))) {
+      dots.y$dist <- if (ny < 50L) "lnorm" else "gl"
+    }
+
     qesty <- quantile(y, u, type = quantile.type)
-    covQy <- qcov(y, u, method = var.method, quantile.type = quantile.type, ...)
+    covQy <- do.call(qcov, c(
+      list(x = y, u = u, method = var.method, quantile.type = quantile.type),
+      dots.y
+    ))
+
     if (is.vector(coef)) {
       covQy.coef <- crossprod(covQy, coef)
       covQy.coef2 <- crossprod(coef, (covQy.coef))

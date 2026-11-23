@@ -21,6 +21,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Shenal Dedduwakumara \email{shenal.dedduwakumara@adelaide.edu.au}
   \item Luke Prendergast \email{luke.prendergast@latrobe.edu.au}
   \item Robert Staudte \email{r.staudte@latrobe.edu.au}
 }

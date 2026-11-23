@@ -27,7 +27,7 @@
 #' @param kernel the kernel to use when \code{method = "qor"}.
 #' @param params a list of parameter values. If \code{NULL}, parameters are estimated where needed.
 #' @param gl.control a list of control arguments passed to \code{fit.fkml} when \code{dist = "gl"}.
-#' @param quantile.type argument for the quantile function used when \code{method = "density"}. Default is \code{8} so that output is consistent with other functions such as \code{IQR}.
+#' @param quantile.type argument for the quantile function used when \code{method = "density"}. Default is \code{7} so that output is consistent with other functions such as \code{IQR}.
 #' @param bw.correct logical; if \code{TRUE}, the bandwidth is corrected near the boundary.
 #' @param large.n.switch logical; if \code{TRUE} and \code{dist = "gl"} with large \code{n}, then \code{"lnorm"} is used for bandwidth selection.
 #' @param ... additional arguments to be passed to \code{density} when \code{method = "density"} is used, or additional arguments passed to \code{qor} when \code{method = "qor"} is used.
@@ -54,7 +54,7 @@
 qden <- function(x, u, dist = "gl", method = "qor",
                        kernel = "epanechnikov",
                        params = NULL, gl.control = list(method = "Lmom"),
-                       quantile.type = 8,
+                       quantile.type = 7,
                        bw.correct = TRUE,
                        large.n.switch = TRUE,
                        ...){
@@ -115,9 +115,9 @@ qden <- function(x, u, dist = "gl", method = "qor",
   } else if (method == "density"){
     if(is.null(params)){
       dest <- density(x = x, ...)
-      df <- approxfun(dest)
-      qest <-  quantile(x, u, type = quantile.type)
-      out <- 1/df(qest)
+      density_at <- approxfun(dest)
+      qest <- quantile(x, u, type = quantile.type)
+      out <- 1 / density_at(qest)
     } else{
       qfun <- get0(paste0("q", dist), mode = "function", inherits = TRUE)
       dfun <- get0(paste0("d", dist), mode = "function", inherits = TRUE)

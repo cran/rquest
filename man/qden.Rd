@@ -12,7 +12,7 @@ qden(
   kernel = "epanechnikov",
   params = NULL,
   gl.control = list(method = "Lmom"),
-  quantile.type = 8,
+  quantile.type = 7,
   bw.correct = TRUE,
   large.n.switch = TRUE,
   ...
@@ -33,7 +33,7 @@ qden(
 
 \item{gl.control}{a list of control arguments passed to \code{fit.fkml} when \code{dist = "gl"}.}
 
-\item{quantile.type}{argument for the quantile function used when \code{method = "density"}. Default is \code{8} so that output is consistent with other functions such as \code{IQR}.}
+\item{quantile.type}{argument for the quantile function used when \code{method = "density"}. Default is \code{7} so that output is consistent with other functions such as \code{IQR}.}
 
 \item{bw.correct}{logical; if \code{TRUE}, the bandwidth is corrected near the boundary.}
 

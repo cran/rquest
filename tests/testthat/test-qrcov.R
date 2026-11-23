@@ -61,8 +61,7 @@ test_that("qrcov ratio estimates match manual calculations", {
 
   qest <- quantile(
     x,
-    u,
-    type = 8
+    u
   )
 
   expected <- c(

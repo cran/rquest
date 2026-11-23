@@ -1,3 +1,15 @@
+# rquest 1.1.1
+
+* Changed the default sample quantile type from 8 to 7 to match R's `quantile()`.
+
+* When `dist` is omitted, `q.test()` and `qineq()` now use a lognormal working
+  distribution for QOR estimation in samples with fewer than 50 non-missing
+  observations. The rule applies separately to each sample. The lognormal
+  option requires strictly positive observations.
+
+* Clarified the documentation for arguments passed to `qcov()` and renamed
+  objects in the `q.test()` examples for clarity.
+
 # rquest 1.1.0
 
 * Added `qden()` for quantile density estimation using QOR-based and density-based methods.

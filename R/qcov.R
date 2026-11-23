@@ -19,7 +19,7 @@
 #' @param u a numeric vector of probability values in the interval \eqn{(0,1)} specifying the quantiles to be estimated. Missing values are not allowed.
 #' @param method the approach used to estimate the quantile density function. Either \code{"qor"} or \code{"density"}.
 #' @param dist a character string naming a supported distribution or a quantile function name used by \code{qden}.
-#' @param quantile.type argument for the quantile function. Default is set to \code{8} so that output is consistent with default quantile function use and other functions such as \code{IQR} (see \code{?quantile} for details).
+#' @param quantile.type argument for the quantile function. Default is set to \code{7} so that output is consistent with default quantile function use and other functions such as \code{IQR} (see \code{?quantile} for details).
 #' @param bw.correct logical; if \code{TRUE}, the bandwidth is corrected near the boundary.
 #' @param params a list of parameter values for the chosen distribution. If \code{NULL}, parameters are estimated where needed.
 #' @param ... additional arguments to be passed to \code{qden} when \code{method = "qor"} and to \code{density} when \code{method = "density"}.
@@ -46,7 +46,7 @@
 qcov <- function(x, u,
                  method = "qor",
                  dist = "gl",
-                 quantile.type = 8,
+                 quantile.type = 7,
                  bw.correct = TRUE,
                  params = NULL,
                  ...)

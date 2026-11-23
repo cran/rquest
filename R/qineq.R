@@ -46,12 +46,12 @@
 #' @param J number of grid points
 #' @param measure character string of quantile based inequality measure to be estimated or a list of parameter choices or formula for user defined measures (see details for available measures and user defined measures).
 #' @param alternative a character string specifying the alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".
-#' @param quantile.type argument for the quantile function.  Default is set to 8 so that output is consistent with default quantile function use and other functions such as IQR (see help file for `quantile()`
+#' @param quantile.type argument for the quantile function.  Default is set to 7 so that output is consistent with default quantile function use and other functions such as IQR (see help file for `quantile()`
 #' for more details)
 #' @param var.method approach use to estimate the quantile density function.  Either "qor"(default) or "density".(See details).
 #' @param conf.level coverage for the estimated confidence interval.
 #' @param true.ineq the specified hypothesized value of the inequality measure or the difference of the inequality depending on whether it was a one-sample test or a two-sample test.
-#' @param ... additional arguments to be passed to function qcov when var.method = “density” is used.
+#' @param ... additional arguments to be passed to function \code{qcov()}.
 #' @return hypothesis test results and associated confidence interval (a list with class "htest")
 #' @references
 #'
@@ -90,7 +90,7 @@
 #'
 
 qineq <- function (x, y = NULL, J = 100, measure = "QRI", alternative = c("two.sided",
-                                                                          "less", "greater"), quantile.type = 8, var.method = "qor",
+                                                                          "less", "greater"), quantile.type = 7, var.method = "qor",
                    conf.level = 0.95, true.ineq = 0.5, ...)
 {
   if (!is.numeric(x))
@@ -183,7 +183,20 @@ qineq <- function (x, y = NULL, J = 100, measure = "QRI", alternative = c("two.s
   coef1 <- unname(params$coef1)
   coef2 <- unname(params$coef2)
 
-  qrcov.resultx <- qrcov(x, u = u, coef1 = coef1, coef2 = coef2, quantile.type = quantile.type, method = var.method, ...)
+  dots <- list(...)
+  nx <- length(x)
+  dots.x <- dots
+
+  if (var.method == "qor" && !("dist" %in% names(dots))) {
+    dots.x$dist <- if (nx < 50L) "lnorm" else "gl"
+  }
+
+  qrcov.resultx <- do.call(qrcov, c(
+    list(x = x, u = u, coef1 = coef1, coef2 = coef2,
+         quantile.type = quantile.type, method = var.method),
+    dots.x
+  ))
+
   J <- length(qrcov.resultx$ratios)
   estx <- 1 - sum(qrcov.resultx$ratios)/J
   sterrx <- sqrt(sum(qrcov.resultx$cov)/J^2)
@@ -191,7 +204,19 @@ qineq <- function (x, y = NULL, J = 100, measure = "QRI", alternative = c("two.s
   method <- paste(samples, "test of the", measure)
 
   if (!is.null(y)) {
-    qrcov.resulty <- qrcov(y, u = u, coef1 = coef1, coef2 = coef2, quantile.type = quantile.type,method = var.method, ...)
+
+    ny <- length(y)
+    dots.y <- dots
+
+    if (var.method == "qor" && !("dist" %in% names(dots))) {
+      dots.y$dist <- if (ny < 50L) "lnorm" else "gl"
+    }
+
+    qrcov.resulty <- do.call(qrcov, c(
+      list(x = y, u = u, coef1 = coef1, coef2 = coef2,
+           quantile.type = quantile.type, method = var.method),
+      dots.y
+    ))
     esty <- 1 - sum(qrcov.resulty$ratios)/J
     sterry <- sqrt(sum(qrcov.resulty$cov)/J^2)
     names(esty) <- measure
